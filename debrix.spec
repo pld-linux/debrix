@@ -1,4 +1,8 @@
 #
+# TODO:
+# - descriptions and summaries
+# - requires/provides/obsoletes
+#
 %define		snap 20040627
 #
 Summary:	debrix
@@ -10,8 +14,9 @@ Epoch:		0
 License:	??
 Group:		X11/Xorg
 Source0:	%{name}-snap-%{snap}.tar.bz2
-# Source0-md5:	-
+# Source0-md5:	9c7761ae23cecede23fb6fdeec47843d
 # not really debrix URL, but there is no other...
+Patch0:		%{name}-many_fixes.patch
 URL:		http://xserver.freedesktop.org
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -40,8 +45,19 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description -l pl
 
+%package devel
+Summary:	debrix headers
+Summary(pl):	Pliki nagłowkowe debrix
+Group:		X11/Development/Libraries
+Requires:       %{name} = %{epoch}:%{version}-%{release}
+
+%description devel
+
+%description devel -l pl
+
 %prep
 %setup -q -n %{name}
+%patch0 -p0
 
 %build
 %{__aclocal}

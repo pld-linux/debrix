@@ -3,7 +3,7 @@
 # - descriptions and summaries
 # - requires/provides/obsoletes
 #
-%define		snap 20040627
+%define		snap 20040628-1
 #
 Summary:	debrix
 Summary(pl):	debrix
@@ -14,9 +14,10 @@ Epoch:		0
 License:	??
 Group:		X11/Xorg
 Source0:	%{name}-snap-%{snap}.tar.bz2
-# Source0-md5:	9c7761ae23cecede23fb6fdeec47843d
-# not really debrix URL, but there is no other...
+# Source0-md5:	d5a4aeb9c75029d6e4443d152c3013e3
 Patch0:		%{name}-many_fixes.patch
+Patch1:		%{name}-modules.patch
+# not really debrix URL, but there is no other...
 URL:		http://xserver.freedesktop.org
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -58,6 +59,7 @@ Requires:	%{name} = %{epoch}:%{version}-%{release}
 %prep
 %setup -q -n %{name}
 %patch0 -p0
+%patch1 -p1
 
 %build
 %{__aclocal}

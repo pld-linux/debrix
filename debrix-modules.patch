@@ -1,0 +1,119 @@
+Index: hw/xorg/loader/Makefile.am
+===================================================================
+RCS file: /cvs/xserver/debrix/hw/xorg/loader/Makefile.am,v
+retrieving revision 1.3
+diff -u -r1.3 Makefile.am
+--- hw/xorg/loader/Makefile.am	28 Jun 2004 05:02:25 -0000	1.3
++++ hw/xorg/loader/Makefile.am	29 Jun 2004 01:18:59 -0000
+@@ -1,8 +1,9 @@
+ noinst_LIBRARIES = libloader.a
+ AM_CFLAGS = $(XORG_CFLAGS) -DDLOPEN_SUPPORT -DHAS_SHM -DXFree86LOADER
+ INCLUDES = $(XORG_INCS) -I$(srcdir)/../parser -I$(srcdir)/../vbe \
+-           -I$(srcdir)/../ddc -I$(srcdir)/../int10 -I$(srcdir)/../i2c \
+-           -I$(srcdir)/../fbdevhw -I$(srcdir)/../xaa
++	   -I$(srcdir)/../ddc -I$(srcdir)/../int10 -I$(srcdir)/../i2c \
++	   -I$(srcdir)/../fbdevhw -I$(srcdir)/../vgahw \
++	   -I$(srcdir)/../xaa -I$(srcdir)/../int10
+ 
+ libloader_a_SOURCES = \
+         dlloader.c \
+Index: hw/xorg/loader/xf86sym.c
+===================================================================
+RCS file: /cvs/xserver/debrix/hw/xorg/loader/xf86sym.c,v
+retrieving revision 1.3
+diff -u -r1.3 xf86sym.c
+--- hw/xorg/loader/xf86sym.c	28 Jun 2004 00:46:33 -0000	1.3
++++ hw/xorg/loader/xf86sym.c	29 Jun 2004 01:18:59 -0000
+@@ -78,6 +78,9 @@
+ #include "xf86cmap.h"
+ #include "xf86fbman.h"
+ #include "fbdevhw.h"
++#include "vgaHW.h"
++#include "xf86int10.h"
++#include "xf86i2c.h"
+ #include "dgaproc.h"
+ #include "dpmsproc.h"
+ #include "vidmodeproc.h"
+@@ -1158,6 +1161,15 @@
+     /* fbdevhw.c */
+     SYMVAR(fbdevHWValidMode)
+ 
++    /* vgaHW.c */
++    SYMVAR(vgaHWInit)
++
++    /* int10 */
++    SYMVAR(xf86InitInt10)
++
++    /* xf86i2c.c */
++    SYMVAR(xf86CreateI2CBusRec)
++
+     /* xaa */
+     SYMVAR(XAACopyROP)
+ 
+Index: hw/xorg/common/xf86Init.c
+===================================================================
+RCS file: /cvs/xserver/debrix/hw/xorg/common/xf86Init.c,v
+retrieving revision 1.3
+diff -u -r1.3 xf86Init.c
+--- hw/xorg/common/xf86Init.c	10 Jun 2004 19:40:04 -0000	1.3
++++ hw/xorg/common/xf86Init.c	29 Jun 2004 01:19:00 -0000
+@@ -117,8 +117,8 @@
+ static char *baseModules[] = {
+ #if 0 /* XXX DS */
+ 	"bitmap",
+-#endif
+ 	"pcidata",
++#endif
+ 	NULL
+ };
+ #endif
+Index: hw/xorg/common/xf86pciBus.c
+===================================================================
+RCS file: /cvs/xserver/debrix/hw/xorg/common/xf86pciBus.c,v
+retrieving revision 1.3
+diff -u -r1.3 xf86pciBus.c
+--- hw/xorg/common/xf86pciBus.c	10 Jun 2004 19:40:04 -0000	1.3
++++ hw/xorg/common/xf86pciBus.c	29 Jun 2004 01:19:02 -0000
+@@ -1709,25 +1709,12 @@
+     /*
+      * Initialise the pcidata entry points.
+      */
+-#ifdef XFree86LOADER
+-    xf86SetupPciIds = (ScanPciSetupProcPtr)LoaderSymbol("ScanPciSetupPciIds");
+-    xf86ClosePciIds = (ScanPciCloseProcPtr)LoaderSymbol("ScanPciClosePciIds");
+-    xf86FindPciNamesByDevice =
+-	(ScanPciFindByDeviceProcPtr)LoaderSymbol("ScanPciFindPciNamesByDevice");
+-    xf86FindPciNamesBySubsys =
+-	(ScanPciFindBySubsysProcPtr)LoaderSymbol("ScanPciFindPciNamesBySubsys");
+-    xf86FindPciClassBySubsys =
+-	(ScanPciFindClassBySubsysProcPtr)LoaderSymbol("ScanPciFindPciClassBySubsys");
+-    xf86FindPciClassByDevice =
+-	(ScanPciFindClassByDeviceProcPtr)LoaderSymbol("ScanPciFindPciClassByDevice");
+-#else
+     xf86SetupPciIds = ScanPciSetupPciIds;
+     xf86ClosePciIds = ScanPciClosePciIds;
+     xf86FindPciNamesByDevice = ScanPciFindPciNamesByDevice;
+     xf86FindPciNamesBySubsys = ScanPciFindPciNamesBySubsys;
+     xf86FindPciClassBySubsys = ScanPciFindPciClassBySubsys;
+     xf86FindPciClassByDevice = ScanPciFindPciClassByDevice;
+-#endif
+ 
+     if (!xf86SetupPciIds())
+ 	FatalError("xf86SetupPciIds() failed\n");
+Index: hw/xorg/int10/Makefile.am
+===================================================================
+RCS file: /cvs/xserver/debrix/hw/xorg/int10/Makefile.am,v
+retrieving revision 1.3
+diff -u -r1.3 Makefile.am
+--- hw/xorg/int10/Makefile.am	27 Jun 2004 20:58:25 -0000	1.3
++++ hw/xorg/int10/Makefile.am	29 Jun 2004 01:19:02 -0000
+@@ -3,7 +3,8 @@
+ #ibxorgint10_a_SOURCES = stub.c
+ 
+ libint10_a_SOURCES = pci.c xf86int10module.c helper_exec.c helper_mem.c \
+-                     xf86int10.c generic.c xf86int10module.c
++                     xf86int10.c generic.c xf86int10module.c sys.c \
++		     xf86x86emu.c decode.c prim_ops.c ops.c ops2.c fpu.c
+ 
+ # FIXME: i386/amd64-only (and Linux-only!!)
+ AM_CFLAGS = -D_PC -D_VM86_LINUX

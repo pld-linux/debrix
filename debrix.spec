@@ -9,12 +9,13 @@ Summary:	debrix
 Summary(pl):	debrix
 Name:		debrix
 Version:	6.7.1
-Release:	0.%{snap}.1
+Release:	0.%{snap}.3
 Epoch:		0
 License:	??
 Group:		X11/Xorg
 Source0:	%{name}-snap-%{snap}.tar.bz2
 # Source0-md5:	ae50d56757530012db8b5e3d394c6a1f
+Patch0:		%{name}-fbPictureInit.patch
 # not really debrix URL, but there is no other...
 URL:		http://xserver.freedesktop.org
 BuildRequires:	autoconf
@@ -56,6 +57,7 @@ Requires:	%{name} = %{epoch}:%{version}-%{release}
 
 %prep
 %setup -q -n %{name}
+%patch0 -p1
 
 %build
 %{__aclocal}

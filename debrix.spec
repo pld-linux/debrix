@@ -49,7 +49,7 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Summary:	debrix headers
 Summary(pl):	Pliki nagłowkowe debrix
 Group:		X11/Development/Libraries
-Requires:       %{name} = %{epoch}:%{version}-%{release}
+Requires:	%{name} = %{epoch}:%{version}-%{release}
 
 %description devel
 

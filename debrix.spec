@@ -3,20 +3,18 @@
 # - descriptions and summaries
 # - requires/provides/obsoletes
 #
-%define		snap 20040628-1
+%define		snap 20040709
 #
 Summary:	debrix
 Summary(pl):	debrix
 Name:		debrix
 Version:	6.7.1
-Release:	0.1
+Release:	0.%{snap}.1
 Epoch:		0
 License:	??
 Group:		X11/Xorg
 Source0:	%{name}-snap-%{snap}.tar.bz2
-# Source0-md5:	d5a4aeb9c75029d6e4443d152c3013e3
-Patch0:		%{name}-many_fixes.patch
-Patch1:		%{name}-modules.patch
+# Source0-md5:	ae50d56757530012db8b5e3d394c6a1f
 # not really debrix URL, but there is no other...
 URL:		http://xserver.freedesktop.org
 BuildRequires:	autoconf
@@ -31,7 +29,7 @@ BuildRequires:	libXfont-devel
 BuildRequires:	libXtrans-devel
 BuildRequires:	panoramixext
 BuildRequires:	randrext
-BuildRequires:	render
+BuildRequires:	renderext
 BuildRequires:	resourceext
 BuildRequires:	xextensions
 BuildRequires:	xkbfile-devel
@@ -58,8 +56,6 @@ Requires:	%{name} = %{epoch}:%{version}-%{release}
 
 %prep
 %setup -q -n %{name}
-%patch0 -p0
-%patch1 -p1
 
 %build
 %{__aclocal}
@@ -101,4 +97,5 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %{_libdir}/*.a
 %{_includedir}/xorg
+%{_includedir}/X11/extensions/*
 %{_pkgconfigdir}/debrix.pc

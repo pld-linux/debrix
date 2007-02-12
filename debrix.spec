@@ -6,7 +6,7 @@
 %define		snap 20040709
 #
 Summary:	debrix
-Summary(pl):	debrix
+Summary(pl.UTF-8):   debrix
 Name:		debrix
 Version:	6.7.1
 Release:	0.%{snap}.3
@@ -43,17 +43,17 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
 
-%description -l pl
+%description -l pl.UTF-8
 
 %package devel
 Summary:	debrix headers
-Summary(pl):	Pliki nagłowkowe debrix
+Summary(pl.UTF-8):   Pliki nagĹowkowe debrix
 Group:		X11/Development/Libraries
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 
 %description devel
 
-%description devel -l pl
+%description devel -l pl.UTF-8
 
 %prep
 %setup -q -n %{name}
